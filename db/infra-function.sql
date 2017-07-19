@@ -1,4 +1,4 @@
--- Trap Trigger Handler
+-- Node Update Trigger Handler
 CREATE OR REPLACE FUNCTION trg_node_update() 
     RETURNS TRIGGER AS $$
     DECLARE 
@@ -23,7 +23,7 @@ CREATE OR REPLACE FUNCTION trg_node_update()
         SELECT alarm_tolerance INTO _alarm_tolerance FROM config WHERE id = '1';
         
         IF _alarm_tolerance IS NULL THEN
-            _alarm_tolerance := 30;
+            _alarm_tolerance := 120;
         END IF;
         
         _alarm_time	:= new.updated_at;
