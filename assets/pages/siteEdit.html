@@ -1,0 +1,63 @@
+        <div class="modal-content">        
+            <button type="button" class="close" ng-click="cancel();">
+                <i class="icon-remove" style="margin:10px; color:blue;"></i>
+            </button>
+            <div class="modal-header">
+                <h3 class="modal-title" ng-model="title">{{title}}</h3>
+            </div>
+            <div class="modal-body">
+                <form name="form" class="form-horizontal" role="form" novalidate>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Name </label>
+                        <div class="col-sm-9">
+                            <input type="text" ng-model="site.name" class="form-control" placeholder="Site name" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Phone Number </label>
+                        <div class="col-sm-9">
+                            <input type="text" ng-model="site.phone" class="form-control" placeholder="Phone number" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">GPS Position </label>
+                        <div class="col-sm-4">
+                            <input type="text" ng-model="site.latitude" class="form-control" placeholder="Latitude" required/>
+                        </div>
+                        <div class="col-sm-1">
+                            &nbsp;
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" ng-model="site.longitude" class="form-control" placeholder="Longitude" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Area </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" ng-model="site.subnet_id" required>
+                                <option ng-repeat="s in areas" ng-selected="site.subnet_id == s.id" value="{{s.id}}">{{s.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Customer </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" ng-model="site.customer_id" required>
+                                <option ng-repeat="c in customers" ng-selected="site.customer_id == c.id" value="{{c.id}}">{{c.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-sm" ng-click="cancel()"><i class="ace-icon fa fa-reply"></i>Cancel</a>
+                    <button ng-click="save(site);"
+                        ng-disabled="form.$invalid || enableUpdate"
+                        class="btn btn-sm btn-primary"
+                        type="button">
+                        <i class="ace-icon fa fa-check"></i>{{buttonText}}
+                    </button>  
+                </div>
+            </div>
+        </div>

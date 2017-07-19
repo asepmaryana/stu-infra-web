@@ -1,0 +1,491 @@
+<div class="col-xs-12">
+    <div class="page-header">
+        <h1 class="pull-left">
+            <i class="icon-map-marker"></i>
+            {{node.name}} - {{node.phone}}
+        </h1>
+    </div>
+    
+    <div class="box">
+        
+        <div class="box-header">
+            <ul class="nav nav-tabs">
+                <li class="active"><a showtab="" href="#montabs" data-toggle="tab"><i class="fa fa-dashboard"></i> Monitoring</a></li>
+                <li><a showtab="" href="#datatabs" data-toggle="tab"><i class="fa fa-database"></i> Data log</a></li>
+                <li><a showtab="" href="#alarmtabs" data-toggle="tab"><i class="fa fa-bell"></i> Alarm log</a></li>
+                <li><a showtab="" href="#smstabs" data-toggle="tab"><i class="fa fa-envelope"></i> SMS log</a></li>
+                <li><a showtab="" href="#maintabs" data-toggle="tab"><i class="fa fa-cogs"></i> Maintenance</a></li>
+                <li ng-if="userinfo.role_id != 3"><a showtab="" href="#settabs" data-toggle="tab"><i class="fa fa-cogs"></i> Setting</a></li>
+            </ul>
+        </div>
+                
+            <div class="tab-content">
+                <div class="tab-pane active" id="montabs">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td><img ng-src="./assets/images/{{node.lf}}" border="0"/></td>
+                                        <td><img ng-src="./assets/images/{{node.gs}}" border="0"/></td>
+                                        <td><img ng-src="./assets/images/{{node.bs}}" border="0"/></td>
+                                        <td><img ng-src="./assets/images/{{node.rs}}" border="0"/></td>
+                                        <td><img ng-src="./assets/images/{{node.bl}}" border="0"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td><img ng-src="./assets/images/{{node.bg}}" border="0"/></td>
+                                        <td>&nbsp;</td>
+                                        <td><img ng-src="./assets/images/{{node.lb}}" border="0"/></td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="tablearea">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>Value</th>
+                                        <th>Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Genset Voltage</td>
+                                        <td>{{node.genset_vr}} | {{node.genset_vs}} | {{node.genset_vt}} </td>
+                                        <td>V</td>
+                                    </tr>
+                                    <!--
+                                    <tr>
+                                        <td>Genset Current</td>
+                                        <td>{{node.genset_cr}} | {{node.genset_cs}} | {{node.genset_ct}} </td>
+                                        <td>A</td>
+                                    </tr>
+                                    -->
+                                    <tr>
+                                        <td>Genset Batt Voltage</td>
+                                        <td>{{node.genset_batt_volt}}</td>
+                                        <td>V</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Batt Voltage</td>
+                                        <td>{{node.batt_volt}}</td>
+                                        <td>V</td>
+                                    </tr>
+                                    <!--
+                                    <tr>
+                                        <td>Batt Current</td>
+                                        <td>{{node.batt_curr}}</td>
+                                        <td>A</td>
+                                    </tr>
+                                    -->
+                                    <tr>
+                                        <td>Running Hour</td>
+                                        <td>{{node.run_hour}}</td>
+                                        <td>H</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Updated</td>
+                                        <td>{{node.updated_at}}</td>
+                                        <td>WIB</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                                                
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div ng-if="alarms.content.length === 0">No alarm found.</div>
+                            <div class="panel panel-default" ng-if="alarms.content.length > 0">
+                                <div class="panel-heading">
+                				    <h2>Active Alarm</h2>
+                                </div>
+                                <div class="panel-body">
+                                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered pagin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Region</th>
+                                                <th>Site</th>
+                                                <th>Date Time</th>
+                                                <th>Severity</th>
+                                                <th>Alarm Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="alarm in alarms.content">
+                                                <td>{{alarm.region}}</td>
+                                                <td>{{alarm.site}}</td>
+                                                <td>{{alarm.ddtime}}</td>
+                                                <td>{{alarm.severity}}</td>
+                                                <td>{{alarm.alarm_label}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <div style="text-align: center;" ng-if="alarms.totalPage > 1">                                        
+                                        <ul class="pagination">                                                                                        
+                                            <li ng-class="{disabled: alarms.firstPage}">
+                                                <a ng-click="reloadAlamPage(1)">First</a>
+                                            </li>
+                                            <li ng-class="{disabled: alarms.firstPage}">
+                                                <a ng-click="reloadAlamPage(alarms.page - 1)">
+                                                    Prev
+                                                </a>
+                                            </li>
+                                            <li ng-repeat="p in alarms.pages">
+                                                <a ng-click="reloadAlamPage(p)">{{p}}</a>
+                                            </li>
+                                            <li ng-class="{disabled: alarms.lastPage}">
+                                                <a ng-click="reloadAlamPage(alarms.page + 1)">
+                                                    Next
+                                                </a>
+                                            </li>
+                                            <li ng-class="{disabled: alarms.lastPage}">
+                                                <a ng-click="reloadAlamPage(alarms.pages.length)">Last</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>                                   
+                    </div>
+                </div>
+                <div class="tab-pane" id="datatabs">
+                    <div class="row box">
+                        <div class="col-md-12">
+                            <form class="form-inline" role="form">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+        								    <label class="sr-only" for="exampleInputEmail2">Start Date</label>
+            								<input type="text" class="form-control" id="startDate" placeholder="Start Date"/>
+         							    </div>
+                                        <div class="form-group">
+            								<label class="sr-only" for="exampleInputEmail2">Stop Date</label>
+            								<input type="text" class="form-control" id="stopDate" placeholder="Stop Date"/>
+         							    </div>
+                                        <div class="form-group">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    View <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a ng-click="viewDatalog('table')">As Table</a></li>
+                                                    <li><a ng-click="viewDatalog('chart')">As Chart</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a ng-click="viewDatalog('xls')">As Excel</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info" ng-if="datalogs.length == 0">
+                                <i class="icon-info-sign"></i>
+                                Data log does not exist, please define date periode.
+                            </div>
+                            <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" ng-if="datalogs.length > 0 && mode == 'table'">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" class="text-center">Date Time</th>
+                                        <th colspan="3" class="text-center">Genset Voltage</th>
+                                        <th rowspan="2" class="text-center">Battery <br />Voltage</th>
+                                        <th rowspan="2" class="text-center">Genset<br /> Batt<br /> Volt</th>
+                                        <th colspan="2" class="text-center">Status</th>
+                                        <th rowspan="2" class="text-center">Run Hour</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-center">R</th>
+                                        <th class="text-center">S</th>
+                                        <th class="text-center">T</th>
+                                        <th class="text-center">Genset</th>
+                                        <th class="text-center">Rect</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="data in datalogs">
+                                        <td>{{data.ddtime}}</td>
+                                        <td>{{data.genset_vr}}</td>
+                                        <td>{{data.genset_vs}}</td>
+                                        <td>{{data.genset_vt}}</td>
+                                        <td>{{data.batt_volt}}</td>
+                                        <td>{{data.genset_batt_volt}}</td>
+                                        <td>{{data.genset_status == '1' ? 'ON' : 'OFF'}}</td>
+                                        <td>{{data.recti_status == '1' ? 'ON' : 'OFF'}}</td>
+                                        <td>{{data.run_hour}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                                                        
+                            <am-chart id="node_chart" options="amChartOptions" height="400px" width="100%" ng-if="mode == 'chart'"></am-chart>
+                            
+                        </div>
+                    </div>      
+                </div>
+                
+                <div class="tab-pane" id="alarmtabs">
+                    <div class="row box">
+                        <div class="col-md-12">
+                            <form class="form-inline" role="form">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+            								<label class="sr-only" for="exampleInputEmail2">Start Date</label>
+            								<input type="email" class="form-control" id="startDateAlarm" placeholder="Start Date"/>
+             							</div>
+                                        <div class="form-group">
+            								<label class="sr-only" for="exampleInputEmail2">Stop Date</label>
+            								<input type="email" class="form-control" id="stopDateAlarm" placeholder="Stop Date"/>
+             							</div>
+                                        <div class="form-group">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    View <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a ng-click="viewAlarmlog('json')">As Table</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a ng-click="viewAlarmlog('xls')">As Excel</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                                                
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info" ng-if="alarmlogs.length == 0">
+                                <i class="icon-info-sign"></i>
+                                Alarm log does not exist.
+                            </div>
+                            <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" ng-if="alarmlogs.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Region</th>
+                                        <th class="text-center">Site</th>
+                                        <th class="text-center">Start</th>
+                                        <th class="text-center">Stop</th>
+                                        <th class="text-center">Severity</th>
+                                        <th class="text-center">Alarm Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="alog in alarmlogs">
+                                        <td>{{alog.region}}</td>
+                                        <td>{{alog.site}}</td>
+                                        <td>{{alog.ddtime}}</td>
+                                        <td>{{alog.ddtime_end}}</td>
+                                        <td>{{alog.severity}}</td>
+                                        <td>{{alog.alarm_label}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                                                
+                </div>
+                
+                <div class="tab-pane" id="smstabs">
+                    <div class="row box">
+                        <div class="col-md-12">
+                            <form class="form-inline" role="form">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+            								<label class="sr-only" for="exampleInputEmail2">Start Date</label>
+            								<input type="email" class="form-control" id="startDateSMS" placeholder="Start Date"/>
+             							</div>
+                                        <div class="form-group">
+            								<label class="sr-only" for="exampleInputEmail2">Stop Date</label>
+            								<input type="email" class="form-control" id="stopDateSMS" placeholder="Stop Date"/>
+             							</div>
+                                        <div class="form-group">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    View <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a ng-click="viewSMS('json')">As Table</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a ng-click="viewSMS('xls')">As Excel</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info" ng-if="smslogs.length == 0">
+                                <i class="icon-info-sign"></i>
+                                Sms log does not exist.
+                            </div>
+                            <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" ng-if="smslogs.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Send Date</th>
+                                        <th class="text-center">Received Date</th>
+                                        <th class="text-center">Text</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="r in smslogs">
+                                        <td>{{r.message_date}}</td>
+                                        <td>{{r.receive_date}}</td>
+                                        <td>{{r.text}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane" id="maintabs">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="box">
+                                <div class="box-header blue-background">
+                                    <div class="title">
+                                        <div class="icon-cogs"></div> 
+                                        Command
+                                    </div>
+                                </div>
+                                <div class="box-content">
+                                    <form id="form_sms" name="form" class="form-horizontal" role="form" novalidate>
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label">Recipient </label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" value="{{node.phone}}" ng-model="cmd.recipient" required/>
+                                            </div>
+                                        </div>                                        
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label">Maintance Type </label>
+                                            <div class="col-md-8">
+                                                <select class="form-control" ng-model="cmd.type" required>
+                                                    <option ng-repeat="c in commands" value="{{c.val}}">{{c.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label">Send Command </label>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control" ng-model="cmd.text" value="{{cmd.type}}"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label">&nbsp;</label>
+                                            <div class="col-md-8">
+                                                <button class="btn btn-success" ng-click="send(cmd)">
+                                                    <div class="icon-play"></div> Send
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="box">
+                                <div class="box-header green-background">
+                                    <div class="title">
+                                        <div class="icon-file"></div> 
+                                        History
+                                    </div>
+                                </div>
+                                <div class="box-content">
+                                    <div class="alert alert-info" ng-if="cmdlogs.length == 0">
+                                        <i class="icon-info-sign"></i>
+                                        Command log does not exist.
+                                    </div>
+                                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" ng-if="cmdlogs.length > 0">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Date</th>
+                                                <th class="text-center">Command</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="r in cmdlogs">
+                                                <td>{{r.create_date}}</td>
+                                                <td>{{r.text}}</td>
+                                                <td>{{r.status}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane" id="settabs" ng-if="userinfo.role_id != 3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form name="form" class="form-horizontal" role="form" novalidate>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Batt Voltage </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" ng-model="batt.batt_volt" value="{{node.batt_volt}}" class="form-control" readonly="readonly"/>
+                                    </div>
+                                    <label class="col-xs-1 control-label">V</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Batt Voltage Minor </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" ng-model="batt.batt_volt_minor" value="{{node.batt_volt_minor}}" class="form-control" placeholder="47.9" required/>
+                                    </div>
+                                    <label class="col-xs-1 control-label">V</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Batt Voltage Major </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" ng-model="batt.batt_volt_major" value="{{node.batt_volt_major}}" class="form-control" placeholder="47.7" required/>
+                                    </div>
+                                    <label class="col-xs-1 control-label">V</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Batt Voltage Critical </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" ng-model="batt.batt_volt_critical" value="{{node.batt_volt_critical}}" class="form-control" placeholder="47.5" required/>
+                                    </div>
+                                    <label class="col-xs-1 control-label">V</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">&nbsp;</label>
+                                    <div class="col-sm-2">
+                                        <button ng-click="saveBatt(batt);"
+                                            ng-disabled="form.$invalid || enableUpdate"
+                                            class="btn btn-sm btn-primary"
+                                            type="button">
+                                            <i class="icon-check"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        
+                                
+    </div>
+    
+</div>

@@ -1,0 +1,148 @@
+<div class="col-xs-12">
+    <div class="page-header">
+        <h1 class="pull-left">
+            <i class="icon-eye-open"></i>
+            Surveillance
+        </h1>
+    </div>
+    <div class="col-sm-2 box">
+        <div class="box-header">
+            <div class="title">
+                <i class="icon-globe"></i>
+                Region
+            </div>
+        </div>
+        <div class="box-content" style="height: 150px; overflow: auto;">
+            <span ng-repeat="r in regions">
+                <input type="checkbox" ng-click="updateSelectedRegion($event, r.id)"/> {{r.name}} <br />
+            </span>            
+        </div>
+    </div>
+    <div class="col-sm-2 box">
+        <div class="box-header">
+            <div class="title">
+                <i class="icon-sitemap"></i>
+                Area                
+            </div>
+        </div>
+        <div class="box-content" style="height: 150px; overflow: auto;">
+            <span ng-repeat="a in areas">
+                <input type="checkbox" ng-click="updateSelectedArea($event, a.id)"/> {{a.name}} <br />
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-2 box">
+        <div class="box-header">
+            <div class="title">
+                <i class="icon-map-marker"></i>
+                Site
+            </div>
+        </div>
+        <div class="box-content" style="height: 150px; overflow: auto;">
+            <span ng-repeat="s in sites">
+                <input type="checkbox" ng-click="updateSelectedSite($event, s.id)"/> {{s.name}} <br />
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-2 box">
+        <div class="box-header">
+            <div class="title">
+                <i class="icon-bell"></i>
+                Alarm
+            </div>
+        </div>
+        <div class="box-content" style="height: 150px; overflow: auto;">
+            <span ng-repeat="al in alarmLists">
+                <input type="checkbox" ng-click="updateSelectedAlarm($event, al.id)"/> {{al.name}} <br />
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-2 box">
+        <div class="box-header">
+            <div class="title">
+                <i class="icon-calendar"></i>
+                Date
+            </div>
+        </div>
+        <div class="box-content" style="height: 150px;">
+            <form class="form-inline" role="form">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+				            <label class="sr-only" for="exampleInputEmail2">Start Date</label>
+                            <input type="text" class="form-control" id="startDate" placeholder="Start Date"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only" for="exampleInputEmail2">Stop Date</label>
+                            <input type="text" class="form-control" id="stopDate" placeholder="Stop Date"/>
+                        </div>
+                        <div class="form-group">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    View <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a ng-click="viewAlarm('table')">As Table</a></li>
+                                    <li class="divider"></li>
+                                    <li><a ng-click="viewAlarm('xls')">As Excel</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-xs-12 box">
+    <div class="alert alert-info" ng-if="actives.content.length == 0">No alarm found.</div>
+    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" ng-if="actives.content.length > 0">
+        <thead>
+            <tr>
+                <th class="text-center">Region</th>
+                <th class="text-center">Area</th>
+                <th class="text-center">Site</th>
+                <th class="text-center">Date Time</th>
+                <th class="text-center">Severity</th>
+                <th class="text-center">Alarm Name</th>
+                <th class="text-center">Acknowledge</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="alog in actives.content">
+                <td>{{alog.region}}</td>
+                <td>{{alog.area}}</td>
+                <td>{{alog.site}}</td>
+                <td>{{alog.ddtime}}</td>
+                <td>{{alog.severity}}</td>
+                <td>{{alog.alarm_label}}</td>
+                <td class="text-center">
+                    <span ng-if="alog.acknowledge == '1'" class="badge badge-success"> <i class="icon-ok"></i></span>
+                    <span ng-if="alog.acknowledge == '0'" class="badge badge-info"> <i class="icon-remove"></i></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="text-align: center;" ng-if="actives.totalPage > 1">                                        
+        <ul class="pagination">                                                                                        
+            <li ng-class="{disabled: actives.firstPage}">
+                <a ng-click="reloadAlamPage(1)">First</a>
+            </li>
+            <li ng-class="{disabled: actives.firstPage}">
+                <a ng-click="reloadAlamPage(actives.page - 1)">Prev</a>
+            </li>
+            <li ng-repeat="p in actives.pages">
+                <a ng-click="reloadAlamPage(p)">{{p}}</a>
+            </li>
+            <li ng-class="{disabled: actives.lastPage}">
+                <a ng-click="reloadAlamPage(actives.page + 1)">Next</a>
+            </li>
+            <li ng-class="{disabled: actives.lastPage}">
+                <a ng-click="reloadAlamPage(actives.pages.length)">Last</a>
+            </li>
+        </ul>
+    </div>
+                                    
+</div>

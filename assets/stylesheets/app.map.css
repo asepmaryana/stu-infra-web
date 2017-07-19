@@ -1,0 +1,132 @@
+.contextmenu{
+    visibility:hidden;
+    z-index: 10;
+    position: relative;
+    background-color: #FFFFFF;
+    width:170px;
+    padding:0px;
+    border:1px;
+    cursor:pointer;
+    border-left:1px solid #cccccc;
+    border-top:1px solid #cccccc;
+    border-right:1px solid #676767;
+    border-bottom:1px solid #676767;  
+}
+.contextmenu .context{
+    font-family: arial,helvetica,sans-serif;
+    font-size:12px;
+    text-align:left;
+    line-height:30px;
+    border-left:0px;
+    border-top:0px;
+    border-right:0px;
+    padding-left:30px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+
+.contextmenu .separator{
+    font-family: arial,helvetica,sans-serif;
+    font-size:12px;
+    text-align:center;
+    line-height:10px;
+    border-bottom:1px solid #dddddd;
+    padding-left:10px;
+    padding-right:10px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+
+.contextmenu .context:hover{
+  background-color: #d6e9f8;
+}
+.contextmenu .context.separator{
+  border-bottom:1px solid #cccccc;
+}
+
+.modal-medium .modal-dialog {
+  width: 60%; /* or whatever you wish */
+}
+
+.modal-wide .modal-dialog {
+  width: 80%; /* or whatever you wish */
+}
+
+.context_menu{
+	z-index: 10;
+    position: relative;
+    background-color: #FFFFFF;
+    width:170px;
+    padding:0px;
+    border:1px;
+    cursor:pointer;
+    border-left:1px solid #cccccc;
+    border-top:1px solid #cccccc;
+    border-right:1px solid #676767;
+    border-bottom:1px solid #676767;
+}
+.context_menu_item{
+	font-family: arial,helvetica,sans-serif;
+    font-size:12px;
+    text-align:left;
+    line-height:30px;
+    border-left:0px;
+    border-top:0px;
+    border-right:0px;
+    padding-left:30px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+.context_menu_item:hover{
+	background-color: #d6e9f8;
+}
+.context_menu_separator{
+	font-family: arial,helvetica,sans-serif;
+    font-size:12px;
+    text-align:center;
+    line-height:10px;
+    border-bottom:1px solid #dddddd;
+    padding-left:10px;
+    padding-right:10px;
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+
+.modal-dialog {
+  width: auto;
+  max-width: 60%;
+  margin: 10px;
+}
+.modal-sm {
+  max-width: 30%;
+}
+.modal-lg {
+  max-width: 90%;
+}
+@media (min-width: 768px) {
+  .modal-dialog {
+    margin: 30px auto;
+  }
+}
+@media (min-width: 320px) {
+  .modal-sm {
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+@media (min-width: 620px) {
+  .modal-dialog {
+    margin-right: auto;
+    margin-left: auto;
+  }
+  .modal-lg {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+}
+@media (min-width: 920px) {
+  .modal-lg {
+    margin-right: auto;
+    margin-left: auto;
+  }
+}

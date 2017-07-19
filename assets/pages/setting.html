@@ -1,0 +1,59 @@
+<div class="col-xs-12">
+    <div class="page-header">
+        <h1 class="pull-left">
+            <i class="icon-gear"></i>
+            Setting
+        </h1>
+    </div>
+    
+    <div class="box">
+        <div class="box-header">
+            <div class="title">
+                <i class="icon-gear"></i>
+                Configuration
+            </div>
+        </div>
+        <div class="box-content">
+            <form name="form" class="form-horizontal" role="form" novalidate>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">UDP Port </label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-model="setting.server_port" class="form-control" placeholder=""/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Alarm Trigger Scheduler </label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-model="setting.cron_scheduler" class="form-control" placeholder=""/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Waiting Time Alarm Trigger </label>
+                    <div class="col-sm-7">
+                        <input type="text" ng-model="setting.alarm_tolerance" class="form-control" placeholder=""/>
+                    </div>
+                    <label class="col-sm-1">Minutes </label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Max SMS Command To Process </label>
+                    <div class="col-sm-7">
+                        <input type="text" ng-model="setting.sms_limit" class="form-control" placeholder=""/>
+                    </div>
+                    <label class="col-sm-1">SMS </label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">&nbsp; </label>
+                    <div class="col-sm-8">
+                        <button ng-click="save();"
+                            ng-disabled="form.$invalid || enableUpdate"
+                            class="btn btn-sm btn-primary"
+                            type="button">
+                            <i class="fa fa-check"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>          
+    </div>
+    
+</div>

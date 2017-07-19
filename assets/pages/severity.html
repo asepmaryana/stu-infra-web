@@ -1,0 +1,53 @@
+<div class="col-xs-12">
+    <div class="page-header">
+        <h1 class="pull-left">
+            <i class="icon-group"></i>
+            Alarm Severity
+        </h1>
+    </div>
+    
+    <button class="btn btn-success btn-sm" ng-click="open(severity)"><i class="icon-plus"></i> New</button>
+    <br /><br />
+    <div ng-if="severities.content.length === 0">No severity found.</div>
+    
+    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered pagin-table" ng-if="severities.content.length > 0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Color</th>
+                <th>#</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="r in severities.content">
+                <td>{{r.name}}</td>
+                <td>{{r.color}}</td>
+                <td>
+                    <button class="btn btn-default btn-sm" ng-click="open(r)"><i class="icon-edit"></i></button>
+                    <button class="btn btn-danger btn-sm" ng-click="remove(r)"><i class="icon-remove"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+              
+    <div style="text-align: center;" ng-if="severities.totalPage > 1">                                        
+        <ul class="pagination">                                                                                        
+            <li ng-class="{disabled: severities.firstPage}">
+                <a ng-click="reloadPage(1)">First</a>
+            </li>
+            <li ng-class="{disabled: severities.firstPage}">
+                <a ng-click="reloadPage(severities.page - 1)">Prev</a>
+            </li>
+            <li ng-repeat="p in severities.pages">
+                <a ng-click="reloadPage(p)">{{p}}</a>
+            </li>
+            <li ng-class="{disabled: severities.lastPage}">
+                <a ng-click="reloadPage(severities.page + 1)">Next</a>
+            </li>
+            <li ng-class="{disabled: severities.lastPage}">
+                <a ng-click="reloadPage(severities.pages.length)">Last</a>
+            </li>
+        </ul>
+    </div>
+                                    
+</div>
