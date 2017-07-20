@@ -273,7 +273,10 @@ CREATE TABLE config
     alarm_tolerance INT NOT NULL DEFAULT 30,
     node_limit INT NOT NULL DEFAULT 100,
     sms_limit INT NOT NULL DEFAULT 50,
+	batt_volt REAL NOT NULL DEFAULT 47,
+	comm_lost_time SMALLINT NOT NULL DEFAULT 6,
     PRIMARY KEY(id)
 );
 
 INSERT INTO config(id) VALUES ('1');
+

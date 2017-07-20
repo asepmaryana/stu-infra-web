@@ -51,3 +51,6 @@ alter table alarm_temp add column acknowledge SMALLINT DEFAULT 0;
 drop view node_view cascade;
 alter table node add column opr_status_id INT DEFAULT 1;
 alter table node add constraint opr_status_fk foreign key(opr_status_id) references opr_status(id) on delete set null;
+
+alter table config add column batt_volt REAL NOT NULL DEFAULT 47;
+alter table config add column comm_lost_time SMALLINT NOT NULL DEFAULT 6;
