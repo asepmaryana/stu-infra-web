@@ -1,0 +1,73 @@
+<div class="col-xs-12">
+    <div class="page-header">
+        <h1 class="pull-left">
+            <i class="icon-user"></i>
+            Operator
+        </h1>
+    </div>
+    
+    <button class="btn btn-success btn-sm" ng-click="open(operator)"><i class="icon-plus"></i> New</button>
+    <button class="btn btn-success btn-sm" ng-click="reloadPage(1)"><i class="icon-refresh"></i> Refresh</button>
+    <br /><br />
+    <div ng-if="users.content.length === 0">No operator found.</div>
+    
+    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered pagin-table" ng-if="operators.content.length > 0">
+        <thead>
+            <tr>
+                <th rowspan="2" class="text-center">Name</th>
+                <th rowspan="2" class="text-center">Phone</th>
+                <th colspan="7" class="text-center">Work Schedule</th>
+                <th rowspan="2" class="text-center">Status</th>
+                <th rowspan="2" class="text-center">#</th>
+            </tr>
+            <tr>
+                <th class="text-center">Monday</th>
+                <th class="text-center">Tuesday</th>
+                <th class="text-center">Wednesday</th>
+                <th class="text-center">Thursday</th>
+                <th class="text-center">Friday</th>
+                <th class="text-center">Saturday</th>
+                <th class="text-center">Sunday</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="r in operators.content">
+                <td>{{r.name}}</td>
+                <td class="text-center">{{r.phone}}</td>
+                <td class="text-center">{{r.mon}}</td>
+                <td class="text-center">{{r.tue}}</td>
+                <td class="text-center">{{r.wed}}</td>
+                <td class="text-center">{{r.thu}}</td>
+                <td class="text-center">{{r.fri}}</td>
+                <td class="text-center">{{r.sat}}</td>
+                <td class="text-center">{{r.sun}}</td>
+                <td class="text-center">{{r.enabled}}</td>
+                <td>
+                    <button class="btn btn-default btn-sm" ng-click="open(r)"><i class="icon-edit"></i></button>
+                    <button class="btn btn-danger btn-sm" ng-click="remove(r)"><i class="icon-remove"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+              
+    <div style="text-align: center;" ng-if="operators.totalPage > 1">                                        
+        <ul class="pagination">                                                                                        
+            <li ng-class="{disabled: operators.firstPage}">
+                <a ng-click="reloadPage(1)">First</a>
+            </li>
+            <li ng-class="{disabled: operators.firstPage}">
+                <a ng-click="reloadPage(operators.page - 1)">Prev</a>
+            </li>
+            <li ng-repeat="p in operators.pages">
+                <a ng-click="reloadPage(p)">{{p}}</a>
+            </li>
+            <li ng-class="{disabled: operators.lastPage}">
+                <a ng-click="reloadPage(operators.page + 1)">Next</a>
+            </li>
+            <li ng-class="{disabled: operators.lastPage}">
+                <a ng-click="reloadPage(operators.pages.length)">Last</a>
+            </li>
+        </ul>
+    </div>
+                                    
+</div>
