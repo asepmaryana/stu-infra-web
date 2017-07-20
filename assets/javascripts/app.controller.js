@@ -1811,5 +1811,88 @@
             }
         };
     })
+    .controller('OperatorController', function($rootScope, $scope, $modal, $filter, $interval, $http){
+        if (angular.isDefined($rootScope.Timer)) $interval.cancel($rootScope.Timer);
+        if (angular.isDefined($rootScope.alarmTimer)) $interval.cancel($rootScope.alarmTimer);
+        if (angular.isDefined($rootScope.nodeTimer)) $interval.cancel($rootScope.nodeTimer);
+        
+        $scope.operator            = {};
+        $scope.operators           = {};
+        $scope.operators.pages     = [];
+        $scope.itemPerPage          = 10;
+        
+        $scope.open = function (o, s) {
+            var modalInstance = $modal.open({
+                templateUrl: BASE_URL+'assets/pages/operatorEdit.html',
+                controller: 'OperatorEditController',
+                size: s,
+                resolve: {
+                    item: function() {
+                        return o;
+                    }
+                }
+            });
+            
+            modalInstance.result.then(function(selectedObject) {
+                $scope.reloadPage();
+            });
+        }
+        
+        $scope.remove = function(o) {
+            bootbox.confirm("Are you sure to delete "+o.name+" ?", function(result) {
+                if(result) {
+                    $http.delete(BASE_URL+'api/operator/remove/'+o.id).success(function(data){
+                        $scope.operators.content = _.without($scope.operators.content, _.findWhere($scope.operators.content, {id:o.id}));
+                    });
+                }
+            });
+        }
+        
+        $scope.reloadPage = function(page){
+            if(!page || page < 1) {
+                page = 1;
+            }
+            $http.get(BASE_URL+'api/operator/fetch/'+page+'/'+$scope.itemPerPage).success(function(response){
+                $scope.operators = response;
+                $scope.operators.pages = [];
+                for(var i=0; i<$scope.operators.totalPage; i++) $scope.operators.pages[i] = i+1;
+            });
+        }
+        
+        $scope.reloadPage();
+    })
+    .controller('OperatorEditController', function($scope, $modalInstance, $http, item){
+        
+        $scope.operator     = angular.copy(item);
+        
+        $scope.cancel = function () {
+            $modalInstance.dismiss('Close');
+        };
+        
+        $scope.title = (angular.isDefined(item.id)) ? 'Edit Operator' : 'Add Operator';
+        $scope.buttonText = (angular.isDefined(item.id)) ? 'Update' : 'Save';
+        
+        var original = item;
+        $scope.isClean = function() {
+            return angular.equals(original, $scope.operator);
+        }
+        
+        $scope.save = function (o) {
+            if(angular.isDefined(o.id)){
+                $http.post(BASE_URL+'api/operator/update/'+o.id, o).then(function (result) {
+                    var x = angular.copy(o);
+                    x.save = 'update';
+                    $modalInstance.close(x);
+                });
+            } else{
+                $http.post(BASE_URL+'api/operator/save', o).then(function (result) {
+                    var x = angular.copy(o);
+                    x.save = 'insert';
+                    x.id = result.id;                    
+                    $modalInstance.close(x);
+                });
+            }
+        };
+    })
     ;
     

@@ -17,7 +17,7 @@
                 <th rowspan="2" class="text-center">Name</th>
                 <th rowspan="2" class="text-center">Phone</th>
                 <th colspan="7" class="text-center">Work Schedule</th>
-                <th rowspan="2" class="text-center">Status</th>
+                <th rowspan="2" class="text-center">Active</th>
                 <th rowspan="2" class="text-center">#</th>
             </tr>
             <tr>
@@ -34,17 +34,17 @@
             <tr ng-repeat="r in operators.content">
                 <td>{{r.name}}</td>
                 <td class="text-center">{{r.phone}}</td>
-                <td class="text-center">{{r.mon}}</td>
-                <td class="text-center">{{r.tue}}</td>
-                <td class="text-center">{{r.wed}}</td>
-                <td class="text-center">{{r.thu}}</td>
-                <td class="text-center">{{r.fri}}</td>
-                <td class="text-center">{{r.sat}}</td>
-                <td class="text-center">{{r.sun}}</td>
-                <td class="text-center">{{r.enabled}}</td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.mon > 0"></i> <i class="icon-minus" ng-if="r.mon == 0"></i> </td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.tue > 0"></i> <i class="icon-minus" ng-if="r.tue == 0"></i></td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.wed > 0"></i> <i class="icon-minus" ng-if="r.wed == 0"></i></td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.thu > 0"></i> <i class="icon-minus" ng-if="r.thu == 0"></i></td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.fri > 0"></i> <i class="icon-minus" ng-if="r.fri == 0"></i></td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.sat > 0"></i> <i class="icon-minus" ng-if="r.sat == 0"></i></td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.sun > 0"></i> <i class="icon-minus" ng-if="r.sun == 0"></i></td>
+                <td class="text-center"><i class="icon-ok" ng-if="r.enabled > 0"></i> <i class="icon-minus" ng-if="r.enabled == 0"></i></td>
                 <td>
-                    <button class="btn btn-default btn-sm" ng-click="open(r)"><i class="icon-edit"></i></button>
-                    <button class="btn btn-danger btn-sm" ng-click="remove(r)"><i class="icon-remove"></i></button>
+                    <button class="btn btn-default btn-sm" ng-click="open(r)"><i class="icon-pencil"></i> </button>
+                    <button class="btn btn-danger btn-sm" ng-click="remove(r)"><i class="icon-trash"></i> </button>
                 </td>
             </tr>
         </tbody>

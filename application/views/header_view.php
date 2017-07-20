@@ -308,6 +308,12 @@
                             Account
                         </a>
                     </li>
+                    <li>
+                        <a href="#/admin/operator">
+                            <i class="icon-user"></i>
+                            Operator
+                        </a>
+                    </li>
                 </ul>
             </li>
 			

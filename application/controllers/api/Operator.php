@@ -31,7 +31,12 @@ class Operator extends REST_Controller
     
     function save_post()
     {
-        $values = json_decode(file_get_contents('php://input'), true);        
+        $values = json_decode(file_get_contents('php://input'), true);
+        foreach($values as $key => $val) {
+            if(is_bool($values[$key])) {
+                $values[$key]   = ($val == TRUE) ? 1 : 0;
+            }
+        }        
         $id     = $this->OperatorModel->save($values);
         $values['id']   = $id;
         $this->response($values, REST_Controller::HTTP_CREATED);
@@ -41,6 +46,11 @@ class Operator extends REST_Controller
     {
         $id    = $this->uri->segment(4);
         $values = json_decode(file_get_contents('php://input'), true);
+        foreach($values as $key => $val) {
+            if(is_bool($values[$key])) {
+                $values[$key]   = ($val == TRUE) ? 1 : 0;
+            }
+        }
         $this->OperatorModel->update($id, $values);
         $this->response($values, REST_Controller::HTTP_OK);
     }

@@ -103,6 +103,11 @@
                 templateUrl: BASE_URL+'assets/pages/user.html',
                 controller: 'UserController'
             })
+            .state('adminOperator', {
+                url: '/admin/operator',
+                templateUrl: BASE_URL+'assets/pages/operator.html',
+                controller: 'OperatorController'
+            })
             ;
             
     }])
