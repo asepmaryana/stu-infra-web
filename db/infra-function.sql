@@ -16,11 +16,18 @@ CREATE OR REPLACE FUNCTION trg_node_update()
         _alarm_severity_id  INT;        
         _alarm_time			TIMESTAMP;
 		_alarm_tolerance    INT;
+        _batt_volt          REAL;
+        _day                VARCHAR(3);
+        _operator           RECORD;
+        _sms                VARCHAR(160);
         
     BEGIN
         
+        -- read day of week
+        SELECT lower(to_char(current_date, 'Dy')) INTO _day;
+        
         -- read config
-        SELECT alarm_tolerance INTO _alarm_tolerance FROM config WHERE id = '1';
+        SELECT alarm_tolerance, batt_volt INTO _alarm_tolerance, _batt_volt FROM config WHERE id = '1';
         
         IF _alarm_tolerance IS NULL THEN
             _alarm_tolerance := 120;
@@ -40,14 +47,17 @@ CREATE OR REPLACE FUNCTION trg_node_update()
                         
         END IF;
         
-        IF new.genset_status = 1 THEN
-            -- genset off ke on
-            new.last_off     := old.updated_at;
-            new.next_off     := new.updated_at + make_interval(mins => (new.timer_genset_on + _alarm_tolerance));
-        ELSE
-            -- genset on ke off
-            new.last_on     := old.updated_at;
-            new.next_on     := new.updated_at + make_interval(mins => (new.timer_genset_off + _alarm_tolerance));
+        -- if status genset was changed
+        IF new.genset_status <> old.genset_status THEN
+            IF new.genset_status = 1 THEN
+                -- if gensen on
+                new.next_off     := new.updated_at + make_interval(mins => (new.timer_genset_on + _alarm_tolerance));
+                new.last_off     := old.updated_at;
+            ELSE
+                -- if genset off
+                new.next_on     := new.updated_at + make_interval(mins => (new.timer_genset_off + _alarm_tolerance));
+                new.last_on     := old.updated_at;
+            END IF;
         END IF;
         
 		_alarm_temp_id := NULL;
@@ -104,6 +114,16 @@ CREATE OR REPLACE FUNCTION trg_node_update()
 				IF _alarm_temp_id IS NULL THEN 
 					INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
 					VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
+                    
+                    -- build sms text
+                    _sms    := concat(upper(_alarm_time), chr(13), new.name, ' [', new.phone, ']', chr(13), to_char(_alarm_time, 'DD-MON-YY HH24:MI'), ' WIB');
+                    
+                    -- send sms notif if low fuel was occured
+                    FOR _operator IN EXECUTE 'SELECT phone FROM operator WHERE enabled=1 AND ' || _day || '=1' 
+                    LOOP
+                        INSERT INTO outbox(recipient, text, create_date) VALUES (_operator.phone, _sms, _alarm_time);
+                    END LOOP;
+                    
 				END IF;
             ELSE
                 UPDATE alarm_log SET dtime_end = _alarm_time WHERE id = _alarm_temp_id;
@@ -212,58 +232,68 @@ CREATE OR REPLACE FUNCTION trg_node_update()
             
         END IF;		        
         
-		IF new.batt_volt <= new.batt_volt_critical THEN
-            
+        IF new.batt_volt <> old.batt_volt THEN
             _alarm_list_id  := 5;
 			_alarm_severity_id := 1;
-			
-            SELECT name INTO _alarm_name FROM alarm_list WHERE id = _alarm_list_id;
-			SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
-			
-            IF _alarm_temp_id IS NULL THEN 
-				INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
-				VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
+            
+            -- alarm batt volt occured when < _batt_volt
+            IF new.batt_volt < _batt_volt THEN
+                SELECT name,severity_id INTO _alarm_name,_alarm_severity_id FROM alarm_list WHERE id = _alarm_list_id;
+                SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
+                
+                IF _alarm_temp_id IS NULL THEN 
+                    INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
+					VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
+                    
+                    -- build sms text
+                    _sms    := concat(upper(_alarm_name), chr(13), new.name, ' [', new.phone, ']', chr(13), to_char(_alarm_time, 'DD-MON-YY HH24:MI'), ' WIB');
+                    
+                    -- send sms notif if low fuel was occured
+                    FOR _operator IN EXECUTE 'SELECT phone FROM operator WHERE enabled=1 AND ' || _day || '=1' 
+                    LOOP
+                        INSERT INTO outbox(recipient, text, create_date) VALUES (_operator.phone, _sms, _alarm_time);
+                    END LOOP;
+                END IF;
+                
+            ELSE
+                _alarm_list_id  := 5;
+                SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
+                UPDATE alarm_log SET dtime_end = _alarm_time WHERE id = _alarm_temp_id;
+                DELETE FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
             END IF;
-			
-		ELSIF new.batt_volt <= new.batt_volt_major THEN
-			
-			_alarm_list_id  := 5;
-			_alarm_severity_id := 2;
-			
-            SELECT name INTO _alarm_name FROM alarm_list WHERE id = _alarm_list_id;
-			SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
-			
-            IF _alarm_temp_id IS NULL THEN 
-				INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
-				VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
-			ELSE
-				UPDATE alarm_temp SET severity_id = _alarm_severity_id WHERE id = _alarm_temp_id;
-            END IF;
-		
-		ELSIF new.batt_volt <= new.batt_volt_minor THEN
-			
-			_alarm_list_id  := 5;
-			_alarm_severity_id := 2;
-			
-            SELECT name INTO _alarm_name FROM alarm_list WHERE id = _alarm_list_id;
-			SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
-			
-            IF _alarm_temp_id IS NULL THEN 
-				INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
-				VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
-			ELSE
-				UPDATE alarm_temp SET severity_id = _alarm_severity_id WHERE id = _alarm_temp_id;
-            END IF;
-			
-        ELSE
-			
-			_alarm_list_id  := 5;
-			SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
-            UPDATE alarm_log SET dtime_end = _alarm_time WHERE id = _alarm_temp_id;
-            DELETE FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
-			
+            
         END IF;
-		
+        
+        -- add comm lost handler
+        IF new.opr_status_id <> old.opr_status_id THEN
+            _alarm_list_id  := 10;
+            
+            -- if operational
+            IF new.opr_status_id = 1 OR new.opr_status_id = 2 THEN
+                DELETE FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
+                
+            -- if comm lost
+            ELSE
+                SELECT name,severity_id INTO _alarm_name,_alarm_severity_id FROM alarm_list WHERE id = _alarm_list_id;
+                SELECT id INTO _alarm_temp_id FROM alarm_temp WHERE node_id = new.id AND alarm_list_id = _alarm_list_id;
+                
+                IF _alarm_temp_id IS NULL THEN 
+                    INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
+					VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
+                    
+                    -- build sms text
+                    _sms    := concat(upper(_alarm_name), chr(13), new.name, ' [', new.phone, ']', chr(13), to_char(_alarm_time, 'DD-MON-YY HH24:MI'), ' WIB');
+                    
+                    -- send sms notif if low fuel was occured
+                    FOR _operator IN EXECUTE 'SELECT phone FROM operator WHERE enabled=1 AND ' || _day || '=1' 
+                    LOOP
+                        INSERT INTO outbox(recipient, text, create_date) VALUES (_operator.phone, _sms, _alarm_time);
+                    END LOOP;
+                END IF;
+                
+            END IF;
+        END IF;
+        
         RETURN NEW;
 		
     END;
