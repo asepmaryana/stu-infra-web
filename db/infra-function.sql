@@ -9,6 +9,7 @@ CREATE OR REPLACE FUNCTION trg_node_update()
         -- Email  : asep.maryana@gmail.com
         -- Website: www.asepmaryana.net
         -- Created: 27 Apr 2017 10:40 WIB
+        -- Modified: 28 Jul 2018 10:25 WIB
         
 		_alarm_temp_id		BIGINT;
         _alarm_list_id      INT;
@@ -20,18 +21,9 @@ CREATE OR REPLACE FUNCTION trg_node_update()
         _day                VARCHAR(3);
         _operator           RECORD;
         _sms                VARCHAR(160);
+        _now                TIMESTAMP;
         
     BEGIN
-        
-        -- read day of week
-        SELECT lower(to_char(current_date, 'Dy')) INTO _day;
-        
-        -- read config
-        SELECT alarm_tolerance, batt_volt INTO _alarm_tolerance, _batt_volt FROM config WHERE id = '1';
-        
-        IF _alarm_tolerance IS NULL THEN
-            _alarm_tolerance := 120;
-        END IF;
         
         _alarm_time	:= new.updated_at;
 		
@@ -39,9 +31,23 @@ CREATE OR REPLACE FUNCTION trg_node_update()
             _alarm_time := now();
         END IF;
         
+        -- read day of week
+        _now    := now();
+        IF(date_part('hour', _now) < 9) THEN
+            _now    := _now - interval '24 hours';
+        END IF;
+        SELECT lower(to_char(_now, 'Dy')) INTO _day;
+        
+        -- read config
+        SELECT alarm_tolerance, batt_volt INTO _alarm_tolerance, _batt_volt FROM config WHERE id = '1';
+        IF _alarm_tolerance IS NULL THEN
+            _alarm_tolerance := 120;
+        END IF;
+        
         IF new.updated_at <> old.updated_at AND new.updated_at IS NOT NULL THEN 
             
-			_alarm_time	:= new.updated_at;            
+            new.opr_status_id = 1;
+			_alarm_time	:= new.updated_at;
             INSERT INTO data_log (node_id,dtime,genset_vr,genset_vs,genset_vt,batt_volt,genset_batt_volt,timer_genset_on,timer_genset_off,run_hour,run_hour_tresh,genset_status,genset_on_fail,genset_off_fail,low_fuel,recti_fail,batt_low,sin_high_temp,eng_high_temp,oil_pressure,maintain_status,recti_status) 
             VALUES (new.id,new.updated_at,new.genset_vr,new.genset_vs,new.genset_vt,new.batt_volt,new.genset_batt_volt,new.timer_genset_on,new.timer_genset_off,new.run_hour,new.run_hour_tresh,new.genset_status,new.genset_on_fail,new.genset_off_fail,new.low_fuel,new.recti_fail,new.batt_low,new.sin_high_temp,new.eng_high_temp,new.oil_pressure,new.maintain_status,new.recti_status);
                         
@@ -279,15 +285,15 @@ CREATE OR REPLACE FUNCTION trg_node_update()
                 
                 IF _alarm_temp_id IS NULL THEN 
                     INSERT INTO alarm_temp (node_id,dtime,alarm_list_id,alarm_label,severity_id) 
-					VALUES (new.id,_alarm_time,_alarm_list_id,_alarm_name,_alarm_severity_id);
+					VALUES (new.id,now(),_alarm_list_id,_alarm_name,_alarm_severity_id);
                     
                     -- build sms text
-                    _sms    := concat(upper(_alarm_name), chr(13), new.name, ' [', new.phone, ']', chr(13), to_char(_alarm_time, 'DD-MON-YY HH24:MI'), ' WIB');
+                    _sms    := concat(upper(_alarm_name), chr(13), new.name, ' [', new.phone, ']', chr(13), to_char(now(), 'DD-MON-YY HH24:MI'), ' WIB');
                     
                     -- send sms notif if low fuel was occured
                     FOR _operator IN EXECUTE 'SELECT phone FROM operator WHERE enabled=1 AND ' || _day || '=1' 
                     LOOP
-                        INSERT INTO outbox(recipient, text, create_date) VALUES (_operator.phone, _sms, _alarm_time);
+                        -- INSERT INTO outbox(recipient, text, create_date) VALUES (_operator.phone, _sms, _alarm_time);
                     END LOOP;
                 END IF;
                 
@@ -426,6 +432,46 @@ CREATE OR REPLACE FUNCTION after_datalog_insert()
         WHERE node_id = NEW.node_id;
         
         UPDATE data_log SET run_hour = _run_time WHERE id = NEW.id;
+        
+        RETURN NEW;
+        
+    END;
+    $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trg_operator_crud() 
+    RETURNS TRIGGER AS $$
+    DECLARE 
+        
+        -- Trigger before insert , update and delete operator
+        -- 
+        -- Author : Asep Maryana
+        -- Email  : asep.maryana@sinergiteknologi.com
+        -- Website: www.asepmaryana.net
+        -- Created: 29 Jul 2017 14:30 WIB
+        
+        _day    VARCHAR(160);
+        
+    BEGIN
+        
+        _day    := '';
+        IF new.mon  = 1 THEN _day   := CONCAT(_day, '- Monday', chr(10)); END IF;
+        IF new.tue  = 1 THEN _day   := CONCAT(_day, '- Tuesday', chr(10)); END IF;
+        IF new.wed  = 1 THEN _day   := CONCAT(_day, '- Wednesday', chr(10)); END IF;
+        IF new.thu  = 1 THEN _day   := CONCAT(_day, '- Thursday', chr(10)); END IF;
+        IF new.fri  = 1 THEN _day   := CONCAT(_day, '- Friday', chr(10)); END IF;
+        IF new.sat  = 1 THEN _day   := CONCAT(_day, '- Saturday', chr(10)); END IF;
+        IF new.sun  = 1 THEN _day   := CONCAT(_day, '- Sunday', chr(10)); END IF;
+        
+        IF (TG_OP = 'INSERT') THEN
+            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
+            VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'You have added to CDC with schedule:', chr(10), _day), now(), 'U', '*', 'N');
+        ELSIF (TG_OP = 'UPDATE') THEN
+            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
+            VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'Your CDC schedule have been modified:', chr(10), _day), now(), 'U', '*', 'N');
+        ELSIF (TG_OP = 'DELETE') THEN
+            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
+            VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'Your CDC schedule have been deleted.'), now(), 'U', '*', 'N');
+        END IF;
         
         RETURN NEW;
         

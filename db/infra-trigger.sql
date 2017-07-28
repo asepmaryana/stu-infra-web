@@ -22,3 +22,9 @@ CREATE TRIGGER trg_datalog_insert
     BEFORE INSERT ON data_log 
     FOR EACH ROW 
     EXECUTE PROCEDURE before_datalog_insert();
+
+CREATE TRIGGER trg_operator_crud 
+    BEFORE INSERT OR UPDATE OR DELETE
+    ON operator 
+    FOR EACH ROW 
+    EXECUTE PROCEDURE trg_operator_crud();

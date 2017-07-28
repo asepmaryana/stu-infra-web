@@ -54,3 +54,4 @@ alter table node add constraint opr_status_fk foreign key(opr_status_id) referen
 
 alter table config add column batt_volt REAL NOT NULL DEFAULT 47;
 alter table config add column comm_lost_time SMALLINT NOT NULL DEFAULT 6;
+alter table config add column shift_time VARCHAR(6) NOT NULL DEFAULT '09:00';

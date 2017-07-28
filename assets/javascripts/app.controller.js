@@ -96,7 +96,7 @@
                 console.log(isOpened);
             });
         }
-        
+        /*
         $rootScope.popupTimer = $interval(function () {
             if(userInfo.popup_enabled == '1') {
                 $http.get(BASE_URL+'api/alarm/total').success(function(total){
@@ -111,7 +111,7 @@
                 });
             }
         }, 10*1000);
-        
+        */
     }])
     .controller('AlarmPopupController', function($scope, $modalInstance, $http){
         
@@ -204,17 +204,19 @@
                     var node = {};
                     var point = new google.maps.LatLng(parseFloat(site.latitude), parseFloat(site.longitude));
                     
-                    // off = grey, on = green                                
-                    if(site.genset_on_fail == '1' || site.genset_off_fail == '1' || site.low_fuel == '1' || site.recti_fail == '1' || site.batt_low == '1' || site.sin_high_temp == '1' || site.eng_high_temp == '1' || site.oil_pressure == '1') tanda = new google.maps.Marker({position: point, map: $scope.map, draggable: true, icon: BASE_URL+'assets/images/lamp_red.png' });
-                    else if(site.opr_status_id == '3') tanda = new google.maps.Marker({position: point, map: $scope.map, draggable: true, icon: BASE_URL+'assets/images/lamp_grey.png' });
-                    else tanda = new google.maps.Marker({position: point, map: $scope.map, draggable: true, icon: BASE_URL+'assets/images/lamp_green.png' });
+                    // comm lost = grey   
+                    if(site.opr_status_id == '3') tanda = new google.maps.Marker({position: point, map: $scope.map, draggable: true, icon: BASE_URL+'assets/images/lamp_grey.png' });
+                    else
+                    {
+                        if(site.genset_on_fail == '1' || site.genset_off_fail == '1' || site.low_fuel == '1' || site.recti_fail == '1' || site.batt_low == '1' || site.sin_high_temp == '1' || site.eng_high_temp == '1' || site.oil_pressure == '1') tanda = new google.maps.Marker({position: point, map: $scope.map, draggable: true, icon: BASE_URL+'assets/images/lamp_red.png' });
+                        else tanda = new google.maps.Marker({position: point, map: $scope.map, draggable: true, icon: BASE_URL+'assets/images/lamp_green.png' });
+                    }                             
                     
                     // remove marker previous
-                    if( $scope.markers[site.id] != null ) {
+                    if( $scope.markers[site.id] != null ){
                         node = $scope.markers[site.id];
                         node.setMap(null);
                     }
-    
                     // register marker to array markers
                     $scope.markers[site.id] = tanda;
                     $scope.nodeCreate(tanda, site);
