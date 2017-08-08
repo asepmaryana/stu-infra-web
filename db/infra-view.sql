@@ -6,6 +6,7 @@ CREATE VIEW alarm_temp_view AS
         node.subnet_id,
         node.phone,
         subnet.name as area,
+        (SELECT parent_id FROM subnet WHERE id = (SELECT subnet_id FROM node WHERE id = alt.node_id)) as area_id,
 		(SELECT id FROM subnet WHERE id = 
             (SELECT parent_id FROM subnet WHERE id = 
                 (SELECT subnet_id FROM node WHERE id = alt.node_id)))

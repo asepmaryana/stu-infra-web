@@ -151,5 +151,18 @@ class NodeModel extends CI_Model
         $this->db->order_by('name', 'asc');
         return $this->db->get($this->table);
     }
+    
+    function is_has_alarm($node_id, $field)
+    {
+        $this->db->select('count(id) as total');
+        $this->db->where($field, $node_id);
+        $rs = $this->db->get('alarm_temp_view');
+        if($rs->num_rows()>0) {
+            $row = $rs->row();
+            if(intval($row->total) > 0) return true;
+            else return false;
+        }
+        else return false; 
+    }
 }
 ?>

@@ -8,12 +8,21 @@ class Site extends REST_Controller
 	function __construct()
 	{
 		parent::__construct();
+        
         $this->load->model('SiteModel','',TRUE);
+        $this->load->model('NodeModel','',TRUE);
 	}
     
     function all_get()
     {
-        $this->response($this->SiteModel->get_list()->result(), REST_Controller::HTTP_OK);
+        $rows   = $this->SiteModel->get_list()->result();
+        $i=0;
+        foreach($rows as $r)
+        {
+            $rows[$i]->alarm    = $this->NodeModel->is_has_alarm($r->id, 'node_id');
+            $i++;
+        }
+        $this->response($rows, REST_Controller::HTTP_OK);
     }    
     
     function region_get()

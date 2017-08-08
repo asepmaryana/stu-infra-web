@@ -113,7 +113,7 @@
         }, 10*1000);
         */
     }])
-    .controller('AlarmPopupController', function($scope, $modalInstance, $http){
+    .controller('AlarmController', function($rootScope, $scope, $http, $interval){
         
         $scope.alarms   = {};
         
@@ -150,29 +150,51 @@
             });
         }
         
-        $scope.cancel = function () {
-            $modalInstance.dismiss('Close');
-            isOpened = false;
-        };
-        
         $scope.reload();
+		
+        $rootScope.realTimer = $interval(function () {
+            $scope.reload();
+        }, 15*1000);
+		
     })
-    .controller('HomeController', function($scope, $http, $interval, $location){        
+    .controller('HomeController', function($rootScope, $scope, $http, $interval, $location){        
         //$scope.devices = ['Node 1', 'Node 2', 'Node 3'];
-        $scope.sactive = {};
-        $scope.sites    = [];
-        $http.get(BASE_URL+'api/node/all').success(function(sites){
-            $scope.sites = sites;
-        });
-
+        $scope.regions      = [];
+        $scope.areas        = [];
+        $scope.sites        = [];
+        
+        $rootScope.iconTimer = $interval(function () {
+            $http.get(BASE_URL+'api/region/all').success(function(response){
+                $scope.regions = response;
+            });
+            $http.get(BASE_URL+'api/area/all').success(function(response){
+                $scope.areas = response;
+            });
+            $http.get(BASE_URL+'api/site/all').success(function(response){
+                $scope.sites = response;
+            });
+            
+            angular.forEach($scope.regions, function (value, key) {
+                if(value.alarm) $('#r'+value.id).addClass('icon-bell fa-blink');
+                else $('#r'+value.id).removeClass('icon-bell fa-blink');
+            });
+            angular.forEach($scope.areas, function (value, key) {
+                if(value.alarm) $('#a'+value.id).addClass('icon-bell fa-blink');
+                else $('#a'+value.id).removeClass('icon-bell fa-blink');
+            });
+            angular.forEach($scope.sites, function (value, key) {
+                if(value.alarm) $('#s'+value.id).addClass('icon-bell fa-blink');
+                else $('#s'+value.id).removeClass('icon-bell fa-blink');
+            });
+        }, 30*1000);
+        
         $scope.open     = function(id) {
             $location.path('/node/view/'+id);
         }
     })
     .controller('MapController', function($rootScope, $interval, $scope, $http, $location, $timeout) {
-        if (angular.isDefined($rootScope.alarmTimer)) $interval.cancel($rootScope.alarmTimer);
         if (angular.isDefined($rootScope.nodeTimer)) $interval.cancel($rootScope.nodeTimer);
-        
+        if (angular.isDefined($rootScope.alarmTimer)) $interval.cancel($rootScope.alarmTimer);
         $scope.map;
         $scope.markers = [];
         $scope.infoWindow = new google.maps.InfoWindow();
@@ -390,22 +412,9 @@
         
         $scope.itemPerPages = [10, 20, 30];
         $scope.itemPerPage  = 10;
-        $scope.alarms = [];
-        $scope.reloadAlamPage = function(page){
-            if(!page || page < 1) {
-                page = 1;
-            }  
-            $http.get(BASE_URL+'api/alarm/node/'+$stateParams.id+'/'+page+'/'+$scope.itemPerPage).success(function(response){
-                $scope.alarms = response;
-                $scope.alarms.pages = [];
-                for(var i=0; i<$scope.alarms.totalPage; i++) $scope.alarms.pages[i] = i+1;
-            });
-        }
-        $scope.reloadAlamPage();
         
-        $rootScope.nodeTimer = $interval(function () {
+        $rootScope.nodeTimer = $interval(function(){
             $scope.reloadPage();
-            $scope.reloadAlamPage();
         }, 15*1000);
             
         // data log
@@ -510,7 +519,6 @@
                 $http.get(BASE_URL+'api/alarmlog/site/'+$stateParams.id+'/'+$('#startDateAlarm').val()+'/'+$('#stopDateAlarm').val()+'/json').success(function(response){
                     $scope.alarmlogs = response;
                 });
-                
             }            
         }
         
@@ -538,12 +546,7 @@
         });
         
         $scope.send  = function(o) {
-            bootbox.alert($('#form_sms').serialize());
-            /*
-            $http.post(BASE_URL+'api/cmdlog/save', $('#form_sms').serialize()).success(function (result) {
-                
-            });
-            */
+            bootbox.alert($('#form_sms').serialize());            
         }
         
         // Setting
@@ -1158,6 +1161,7 @@
         if (angular.isDefined($rootScope.alarmTimer)) $interval.cancel($rootScope.alarmTimer);
         if (angular.isDefined($rootScope.nodeTimer)) $interval.cancel($rootScope.nodeTimer);
         
+        $scope.shifts   = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00'];
         $scope.setting  = null;
         $http.get(BASE_URL+'api/config/list').success(function(data){
             $scope.setting = data;

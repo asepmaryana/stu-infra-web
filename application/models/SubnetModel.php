@@ -78,6 +78,19 @@ class SubnetModel extends CI_Model
         elseif(!is_array($region) && !empty($region)) $this->db->where('region_id', $region);
         $this->db->order_by('name','asc');
         return $this->db->get('site_view');
-    } 
+    }
+    
+    function is_has_alarm($subnet_id, $field)
+    {
+        $this->db->select('count(id) as total');
+        $this->db->where($field, $subnet_id);
+        $rs = $this->db->get('alarm_temp_view');
+        if($rs->num_rows()>0) {
+            $row = $rs->row();
+            if(intval($row->total) > 0) return true;
+            else return false;
+        }
+        else return false; 
+    }
 }
 ?>

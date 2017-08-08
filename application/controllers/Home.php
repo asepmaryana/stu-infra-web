@@ -21,10 +21,18 @@ class Home extends CI_Controller {
             foreach($areas as $a)
             {
                 $sites  = $this->NodeModel->get_by_subnet_id($a->id)->result();
+                $k=0;
+                foreach($sites as $s)
+                {
+                    $sites[$k]->alarm  = $this->NodeModel->is_has_alarm($s->id, 'node_id');
+                    $k++;
+                }
                 $areas[$j]->children = $sites;
+                $areas[$j]->alarm = $this->SubnetModel->is_has_alarm($a->id, 'subnet_id');
                 $j++;
             }
             $regions[$i]->children = $areas;
+            $regions[$i]->alarm = $this->SubnetModel->is_has_alarm($r->id, 'region_id');
             $i++;
         }
         $data['user'] = $this->session->userdata('name');

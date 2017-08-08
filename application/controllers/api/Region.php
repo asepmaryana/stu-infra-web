@@ -9,11 +9,19 @@ class Region extends REST_Controller
 	{
 		parent::__construct();
         $this->load->model('RegionModel','',TRUE);
+        $this->load->model('SubnetModel','',TRUE);
 	}
     
     function all_get()
     {
-        $this->response($this->RegionModel->get_list()->result(), REST_Controller::HTTP_OK);
+        $rows   = $this->RegionModel->get_list()->result();
+        $i=0;
+        foreach($rows as $r)
+        {
+            $rows[$i]->alarm    = $this->SubnetModel->is_has_alarm($r->id, 'region_id');
+            $i++;
+        }
+        $this->response($rows, REST_Controller::HTTP_OK);
     }    
     
     function fetch_get()

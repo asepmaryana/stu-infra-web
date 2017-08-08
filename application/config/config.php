@@ -216,7 +216,7 @@ $config['directory_trigger'] = 'd';
 | your log files will fill up very fast.
 |
 */
-$config['log_threshold'] = 0;
+$config['log_threshold'] = 1;
 
 /*
 |--------------------------------------------------------------------------
@@ -317,7 +317,7 @@ $config['cache_query_string'] = FALSE;
 | https://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = 'Sinergi2016';
+$config['encryption_key'] = 'Sinergi2017';
 
 /*
 |--------------------------------------------------------------------------
@@ -370,10 +370,10 @@ $config['encryption_key'] = 'Sinergi2016';
 | except for 'cookie_prefix' and 'cookie_httponly', which are ignored here.
 |
 */
-$config['sess_driver'] = 'files';
+$config['sess_driver'] = 'database';
 $config['sess_cookie_name'] = 'cdc_session';
-$config['sess_expiration'] = 300;
-$config['sess_save_path'] = NULL;
+$config['sess_expiration'] = 3600;
+$config['sess_save_path'] = 'session';
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
 $config['sess_regenerate_destroy'] = FALSE;

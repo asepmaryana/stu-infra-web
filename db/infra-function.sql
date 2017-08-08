@@ -21,7 +21,6 @@ CREATE OR REPLACE FUNCTION trg_node_update()
         _day                VARCHAR(3);
         _operator           RECORD;
         _sms                VARCHAR(160);
-        _now                TIMESTAMP;
         
     BEGIN
         
@@ -32,11 +31,7 @@ CREATE OR REPLACE FUNCTION trg_node_update()
         END IF;
         
         -- read day of week
-        _now    := now();
-        IF(date_part('hour', _now) < 9) THEN
-            _now    := _now - interval '24 hours';
-        END IF;
-        SELECT lower(to_char(_now, 'Dy')) INTO _day;
+        _day    := get_day_name(now()::TIMESTAMP);
         
         -- read config
         SELECT alarm_tolerance, batt_volt INTO _alarm_tolerance, _batt_volt FROM config WHERE id = '1';
@@ -453,27 +448,52 @@ CREATE OR REPLACE FUNCTION trg_operator_crud()
         
     BEGIN
         
-        _day    := '';
-        IF new.mon  = 1 THEN _day   := CONCAT(_day, '- Monday', chr(10)); END IF;
-        IF new.tue  = 1 THEN _day   := CONCAT(_day, '- Tuesday', chr(10)); END IF;
-        IF new.wed  = 1 THEN _day   := CONCAT(_day, '- Wednesday', chr(10)); END IF;
-        IF new.thu  = 1 THEN _day   := CONCAT(_day, '- Thursday', chr(10)); END IF;
-        IF new.fri  = 1 THEN _day   := CONCAT(_day, '- Friday', chr(10)); END IF;
-        IF new.sat  = 1 THEN _day   := CONCAT(_day, '- Saturday', chr(10)); END IF;
-        IF new.sun  = 1 THEN _day   := CONCAT(_day, '- Sunday', chr(10)); END IF;
+        IF (TG_OP = 'DELETE') THEN
+            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
+            VALUES (old.phone, CONCAT('Hi, ',old.name, chr(10),'Your CDC schedule have been deleted.'), now(), 'U', '*', 'N');
+            
+            RETURN OLD;
         
-        IF (TG_OP = 'INSERT') THEN
-            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
-            VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'You have added to CDC with schedule:', chr(10), _day), now(), 'U', '*', 'N');
-        ELSIF (TG_OP = 'UPDATE') THEN
-            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
-            VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'Your CDC schedule have been modified:', chr(10), _day), now(), 'U', '*', 'N');
-        ELSIF (TG_OP = 'DELETE') THEN
-            INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
-            VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'Your CDC schedule have been deleted.'), now(), 'U', '*', 'N');
+        ELSE
+            _day    := '';
+            
+            IF new.mon  = 1 THEN _day   := CONCAT(_day, '- Monday', chr(10)); END IF;
+            IF new.tue  = 1 THEN _day   := CONCAT(_day, '- Tuesday', chr(10)); END IF;
+            IF new.wed  = 1 THEN _day   := CONCAT(_day, '- Wednesday', chr(10)); END IF;
+            IF new.thu  = 1 THEN _day   := CONCAT(_day, '- Thursday', chr(10)); END IF;
+            IF new.fri  = 1 THEN _day   := CONCAT(_day, '- Friday', chr(10)); END IF;
+            IF new.sat  = 1 THEN _day   := CONCAT(_day, '- Saturday', chr(10)); END IF;
+            IF new.sun  = 1 THEN _day   := CONCAT(_day, '- Sunday', chr(10)); END IF;
+            
+            IF (TG_OP = 'INSERT') THEN
+                INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
+                VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'You have added to CDC with schedule:', chr(10), _day), now(), 'U', '*', 'N');
+            ELSE
+                INSERT INTO outbox(recipient,text,create_date,status,gateway_id,message_type) 
+                VALUES (new.phone, CONCAT('Hi, ',new.name, chr(10),'Your CDC schedule have been modified:', chr(10), _day), now(), 'U', '*', 'N');
+            END IF;
+            
+            RETURN NEW;
+        
         END IF;
         
-        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+    
+CREATE OR REPLACE FUNCTION get_day_name(_dtime TIMESTAMP) 
+    RETURNS VARCHAR(3) AS $$
+    
+    DECLARE 
+        _day VARCHAR(3);
+    BEGIN
+        
+        IF date_part('hour', _dtime) < 9 THEN
+            _dtime  := _dtime - interval '24 hours';
+        END IF;
+        
+        SELECT lower(to_char(_dtime, 'Dy')) INTO _day;
+        
+        RETURN _day;
         
     END;
     $$ LANGUAGE plpgsql;

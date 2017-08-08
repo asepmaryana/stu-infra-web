@@ -115,6 +115,53 @@
                 <div ui-view></div>
               </div>
               
+              <div class="row" ng-controller="AlarmController">
+                <div class="col-xs-12 box">
+                    <div class="box-header">
+                        <div class="title">Active Alarm</div>
+                    </div>
+                    <div class="box-content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <span ng-if="alarms.content.length == 0">No alarm active.</span>
+                                <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered pagin-table" ng-if="alarms.content.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                <input type="checkbox" ng-click="toggleAll()" ng-model="isAllSelected"/>
+                                            </th>
+                                            <th>Region</th>
+                                            <th>Site</th>
+                                            <th>Date Time</th>
+                                            <th>Severity</th>
+                                            <th>Alarm Name</th>
+                                            <th class="text-center">Ack</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="alarm in alarms.content">
+                                            <td class="text-center"><input type="checkbox" ng-model="alarm.selected" ng-change="alarmToggled()"/></td>
+                                            <td>{{alarm.region}}</td>
+                                            <td>{{alarm.site}}</td>
+                                            <td>{{alarm.ddtime}}</td>
+                                            <td>{{alarm.severity}}</td>
+                                            <td>{{alarm.alarm_label}}</td>
+                                            <td class="text-center">
+                                                <img ng-src="./assets/images/tick.png" ng-if="alarm.acknowledge == '1'" border="0"/>
+                                                <img ng-src="./assets/images/delete.png" ng-if="alarm.acknowledge == '0'" border="0"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-right">
+                                <a class="btn btn-sm btn-primary" ng-click="ackAll()"><i class="icon-ok"></i> Ack</a> 
+                                <a class="btn btn-sm btn-danger" ng-click="delAll()"><i class="icon-trash"></i> Delete</a> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
               <div class="modal fade" id="frmDlg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">                    
             	<div class="modal-dialog">
             		<div class="modal-content">

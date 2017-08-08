@@ -18,7 +18,20 @@
         'ngTable',
         'amChartsDirective'
     ])
-    .config(['$stateProvider', '$urlRouterProvider', '$ocLazyLoadProvider', function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider){
+    .factory('loggedIn', function($q, $location){
+        return {
+            responseError: function(response) {
+                if (response.status == 401) {
+                    console.error("You are not logged in");
+                    window.location.href = BASE_URL;
+                }
+                return $q.reject(response);
+            }
+        };
+    })
+    .config(['$httpProvider', '$stateProvider', '$urlRouterProvider', '$ocLazyLoadProvider', function($httpProvider, $stateProvider, $urlRouterProvider, $ocLazyLoadProvider){
+        
+        $httpProvider.interceptors.push('loggedIn');
         
         $ocLazyLoadProvider.config({
             debug:false,
@@ -112,7 +125,9 @@
             
     }])
     .run(function($rootScope) {
+		$rootScope.realTimer = null;
         $rootScope.Timer = null;
         $rootScope.alarmTimer = null;
         $rootScope.nodeTimer = null;
+        $rootScope.iconTimer = null;
     });

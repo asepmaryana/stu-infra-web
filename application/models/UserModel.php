@@ -64,6 +64,8 @@ class UserModel extends CI_Model
                 'role_id'	=> $row->role_id,
                 'customer_id'	=> $row->customer_id
             );
+            $this->session->sess_expiration = '3600';
+            $this->session->sess_expire_on_close = 'true';
 			$this->session->set_userdata($info);
 			return true;
 		}

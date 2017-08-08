@@ -62,7 +62,7 @@ $config['rest_supported_formats'] = [
 | The field name for the status inside the response
 |
 */
-$config['rest_status_field_name'] = 'status';
+$config['rest_status_field_name'] = 'success';
 
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +72,7 @@ $config['rest_status_field_name'] = 'status';
 | The field name for the message inside the response
 |
 */
-$config['rest_message_field_name'] = 'error';
+$config['rest_message_field_name'] = 'msg';
 
 /*
 |--------------------------------------------------------------------------
@@ -94,7 +94,7 @@ $config['enable_emulate_request'] = TRUE;
 | e.g: My Secret REST API
 |
 */
-$config['rest_realm'] = 'REST API';
+$config['rest_realm'] = 'CDC_API';
 
 /*
 |--------------------------------------------------------------------------
@@ -110,7 +110,7 @@ $config['rest_realm'] = 'REST API';
 |           authorization key
 |
 */
-$config['rest_auth'] = FALSE;
+$config['rest_auth'] = 'session';
 
 /*
 |--------------------------------------------------------------------------
@@ -126,7 +126,7 @@ $config['rest_auth'] = FALSE;
 | Note: If 'rest_auth' is set to 'session' then change 'auth_source' to the name of the session variable
 |
 */
-$config['auth_source'] = 'ldap';
+$config['auth_source'] = 'username';
 
 /*
 |--------------------------------------------------------------------------
@@ -187,6 +187,9 @@ $config['auth_library_function'] = '';
 // ---Uncomment list line for the wildard unit test
 // $config['auth_override_class_method']['wildcard_test_cases']['*'] = 'basic';
 
+$config['auth_override_class_method']['auth']['login'] = 'none';
+$config['auth_override_class_method']['auth']['logout'] = 'none';
+
 /*
 |--------------------------------------------------------------------------
 | Override auth types for specfic 'class/method/HTTP method'
@@ -210,7 +213,7 @@ $config['auth_library_function'] = '';
 | Array of usernames and passwords for login, if ldap is configured this is ignored
 |
 */
-$config['rest_valid_logins'] = ['admin' => '1234'];
+# $config['rest_valid_logins'] = ['admin' => '1234'];
 
 /*
 |--------------------------------------------------------------------------

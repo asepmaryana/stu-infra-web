@@ -95,64 +95,6 @@
                             </table>
                         </div>
                     </div>
-                                                
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div ng-if="alarms.content.length === 0">No alarm found.</div>
-                            <div class="panel panel-default" ng-if="alarms.content.length > 0">
-                                <div class="panel-heading">
-                				    <h2>Active Alarm</h2>
-                                </div>
-                                <div class="panel-body">
-                                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered pagin-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Region</th>
-                                                <th>Site</th>
-                                                <th>Date Time</th>
-                                                <th>Severity</th>
-                                                <th>Alarm Name</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="alarm in alarms.content">
-                                                <td>{{alarm.region}}</td>
-                                                <td>{{alarm.site}}</td>
-                                                <td>{{alarm.ddtime}}</td>
-                                                <td>{{alarm.severity}}</td>
-                                                <td>{{alarm.alarm_label}}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    
-                                    <div style="text-align: center;" ng-if="alarms.totalPage > 1">                                        
-                                        <ul class="pagination">                                                                                        
-                                            <li ng-class="{disabled: alarms.firstPage}">
-                                                <a ng-click="reloadAlamPage(1)">First</a>
-                                            </li>
-                                            <li ng-class="{disabled: alarms.firstPage}">
-                                                <a ng-click="reloadAlamPage(alarms.page - 1)">
-                                                    Prev
-                                                </a>
-                                            </li>
-                                            <li ng-repeat="p in alarms.pages">
-                                                <a ng-click="reloadAlamPage(p)">{{p}}</a>
-                                            </li>
-                                            <li ng-class="{disabled: alarms.lastPage}">
-                                                <a ng-click="reloadAlamPage(alarms.page + 1)">
-                                                    Next
-                                                </a>
-                                            </li>
-                                            <li ng-class="{disabled: alarms.lastPage}">
-                                                <a ng-click="reloadAlamPage(alarms.pages.length)">Last</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                        </div>                                   
-                    </div>
                 </div>
                 <div class="tab-pane" id="datatabs">
                     <div class="row box">
